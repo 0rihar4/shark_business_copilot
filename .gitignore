@@ -9,6 +9,7 @@ media/
 sistema_lead/local_settings.py
 gunicorn-error-log
 __localcode
+files_cache/*
 
 # Backup files #
 *.bak
