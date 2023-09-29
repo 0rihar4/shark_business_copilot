@@ -1,30 +1,58 @@
 import os
 import sys
+import time
 from collections import defaultdict
+from datetime import datetime
 
 import joblib
 from dotenv import load_dotenv
 from PySide6 import QtCore
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+                               QMainWindow, QMessageBox, QTableWidgetItem)
 
+from conexao import GetInfosDB
+from ui_automatizador import Disparo
 from ui_functions import AuthUser
 from ui_main import Ui_MainWindow
+from ui_modal import Ui_Dialog
+from ui_threads import LoginThread, UpdateListThread
 
 load_dotenv()
+
+
+class DialogModal(QDialog, Ui_Dialog):
+    def __init__(self, msg, parent=None) -> None:
+        super().__init__()
+        self.message = msg
+        self.setupUi(self)
+        self.setWindowTitle('Shark Copilot Avisa:')
+        self.msg_modal.setText(str(msg))
+        QBtn = QDialogButtonBox.Ok
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.btn_confirm.accepted.connect(self.accept)
+
+    def errorModal(self, title):
+        error = QMessageBox.warning(self, title, self.message)
+        if error == QDialogButtonBox.Ok:
+            self.close()
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self,) -> None:
         super(MainWindow, self).__init__()
-        self.errors = defaultdict(list)
+        self._my_errors = defaultdict(list)  # type:ignore
         # if self.logado:
         #     self.lineUser.setText('Logado')
         #     self.linePassword.setText('Logado')
         self.setupUi(self)
         self.setWindowTitle("Shark Copilot - Sistema de Disparos")
         appIcon = QIcon(u"")
+        self.loginProgress.hide()
+        self.update_list_clientes.hide()
+
+        self.worker_thread = None
         self.setWindowIcon(appIcon)
         ###############################################################
         # Check if the user is logged in
@@ -46,8 +74,76 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_ajuda.clicked.connect(
             lambda: self.Pages.setCurrentWidget(self.pg_ajuda))
 
-        self.btn_logar.clicked.connect(self.authenticate_user)
+        self.btn_logar.clicked.connect(self.start_authentication)
         ###################
+
+        # Start Disparo
+        self.bt_disparo.clicked.connect(
+            self.DialogConfirmDisparo
+        )
+        # Atualizar Tabela
+        self.btn_atualizar_clientes.clicked.connect(
+            self.start_update_list_client
+        )
+
+    def DialogConfirmDisparo(self):
+        mensagem = "Atenção! Nossa função de disparo realiza uma automação do whatsapp. Essa função pode ocasionar o bloqueamento do seu número!  \
+        Utilize um numero de whatsapp secundario."  # noqa E501
+        dlg = DialogModal(msg=mensagem, parent=self)
+        dados = self.getInfosTable()
+        # dlg.msg_modal.setText('Testando')
+        if dlg.exec_():
+            disaprador = Disparo()
+            dlg.btn_confirm.clicked.connect(
+                disaprador.disparar(lista_disparo=dados)
+            )
+
+    def getInfosTable(self):
+        dados_tabela = []
+        num_linhas = self.table_select_clientes.rowCount()
+        num_colunas = self.table_select_clientes.columnCount()
+
+        # Percorre a tabela e coleta os dados
+        for row in range(num_linhas):
+            linha = {}
+            for col in range(num_colunas):
+                header = self.table_select_clientes.horizontalHeaderItem(
+                    col).text()
+                cell_data = self.table_select_clientes.item(row, col).text()
+                linha[header] = cell_data
+            dados_tabela.append(linha)
+        return dados_tabela
+
+    def configTableListClientes(self):
+
+        try:
+            auth = AuthUser()
+            file_cache = str(os.getenv('LOGIN_CACHE'))
+            auth.check_time_file_cache(file_cache)
+            infos_login = joblib.load(os.getenv('LOGIN_CACHE'))
+            id_user = infos_login.get('id', None)
+            get_infos = GetInfosDB()
+            get_date_files = get_infos.get_files_csv(id_user)
+            num_linhas = len(get_date_files)  # type: ignore
+            num_colunas = 3
+
+            self.table_select_clientes.setRowCount(num_linhas)
+            self.table_select_clientes.setColumnCount(num_colunas)
+
+            headers = ['Nome', 'WhatsApp', 'Texto']
+            self.table_select_clientes.setHorizontalHeaderLabels(headers)
+
+            for row, (nome, info) in enumerate(
+                    get_date_files.items()):  # type:ignore
+                self.table_select_clientes.setItem(
+                    row, 0, QTableWidgetItem(nome))
+                self.table_select_clientes.setItem(
+                    row, 1, QTableWidgetItem(info['whatsapp']))
+                self.table_select_clientes.setItem(
+                    row, 2, QTableWidgetItem(info['texto']))
+
+        except FileNotFoundError:
+            ...
 
     def isLogged(self):
         try:
@@ -55,9 +151,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             file_cache = str(os.getenv('LOGIN_CACHE'))
             auth.check_time_file_cache(file_cache)
             infos_login = joblib.load(os.getenv('LOGIN_CACHE'))
-            user = infos_login.get('user', None)
 
+            user = infos_login.get('user', None)
+            self.txt_user_login.setText(str(user))
+            self.txt_data_login.setText(
+                str(datetime.now().strftime('%d/%m/%Y'))
+            )
             self.loginConfirmOpen(username=user)
+            self.configTableListClientes()
         except FileNotFoundError:
             return False
 
@@ -100,33 +201,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         password = self.linePassword.text()
 
         if user == '':
-            self.errors['login'].append('Digite seu login')
+            self._my_errors['login'].append('Digite seu login')
         if password == '':
-            self.errors['password'].append('Digite sua Senha')
+            self._my_errors['password'].append('Digite sua Senha')
         auth = AuthUser()
         login = auth.CR_token_login(user, password)
-        if self.errors:
+        if self._my_errors:
             text_errors = ''
-            for key, erro in self.errors.items():
+            for key, erro in self._my_errors.items():
                 text_errors += f'{erro[0]}\n'
 
             self.msg_error_login.setText(text_errors)
         else:
             if login:
+                id_user = auth.get_infos_user()
+                print(id_user)
+                id_user = id_user[0].get('id', None)  # type:ignore
                 infos_login = {
+                    'id': id_user,
                     'user': user,
-                    'password': password
+                    'password': password,
+
                 }
                 joblib.dump(infos_login, os.getenv('LOGIN_CACHE'))
                 self.logado = True
                 self.animationCloseBoxLogin()
                 self.loginConfirmOpen(username=user)
+                self.txt_user_login.setText(user)
+                self.txt_data_login.setText(
+                    str(datetime.now().strftime('%d/%m/%Y'))
+                )
                 self.msg_error_login.setText('')
+                self.configTableListClientes()
             else:
                 self.msg_error_login.setText('Usúario/Senha Inválidos')
 
     # Animation box login
-
     def loginConfirmOpen(self, **kwargs):
         self.boxLogin.setMaximumHeight(0)
         box_confirm_login_height = self.box_login_confirm.height()
@@ -141,14 +251,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.animation.start()
         username = kwargs.get('username', None)
-        self.text_user_name.setText(username)
+        self.text_user_name.setText(str(username))
 
     def animationCloseBoxLogin(self):
         box_login_height = self.boxLogin.height()
-        if box_login_height == 350:
+        if box_login_height == 385:
             newHeight = 0
         else:
-            newHeight = 350
+            newHeight = 385
         # Ocultar box login
         self.animation = QtCore.QPropertyAnimation(
             self.boxLogin, b"maximumHeight")
@@ -160,9 +270,79 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.animation.start()
 
+    def start_authentication(self):
+        user = self.lineUser.text()
+        password = self.linePassword.text()
+
+        if user == '' or password == '':
+            self.msg_error_login.setText('Digite o usuário e a senha.')
+            return
+
+        self.loginProgress.show()
+        self.loginProgress.setValue(0)
+        self.btn_logar.setEnabled(False)
+
+        self.worker_thread = LoginThread(user, password)
+        self.worker_thread.finished.connect(self.authentication_finished)
+        self.worker_thread.start()
+        cont = 0
+        while self.worker_thread.isFinished() is not True:
+            self.loginProgress.setValue(cont)
+            if cont < 100:
+                cont += 1
+            else:
+                cont = 0
+            time.sleep(0.001)
+
+    def authentication_finished(self, success):
+        self.loginProgress.hide()
+        self.btn_logar.setEnabled(True)
+        if success:
+            user = self.lineUser.text()
+            self.msg_error_login.setText('Autenticação bem-sucedida.')
+            self.animationCloseBoxLogin()
+            self.loginConfirmOpen(username=user)
+            self.txt_user_login.setText(user)
+            self.txt_data_login.setText(
+                str(datetime.now().strftime('%d/%m/%Y'))
+            )
+            self.msg_error_login.setText('')
+            self.configTableListClientes()
+
+        else:
+            self.msg_error_login.setText('Usuário/Senha Inválidos.')
+
+    def start_update_list_client(self):
+        table = self.table_select_clientes
+        self.update_list_clientes.show()
+        self.update_list_clientes.setValue(0)
+        self.btn_atualizar_clientes.setEnabled(False)
+
+        self.worker_thread = UpdateListThread(table=table)
+        self.worker_thread.finished.connect(self.updates_list_client_finished)
+        self.worker_thread.start()
+        cont = 0
+        while self.worker_thread.isFinished() is not True:
+            self.update_list_clientes.setValue(cont)
+            if cont < 100:
+                cont += 1
+            else:
+                cont = 0
+            time.sleep(0.001)
+
+    def updates_list_client_finished(self, success):
+        if success:
+            self.update_list_clientes.hide()
+            self.btn_atualizar_clientes.setEnabled(True)
+        else:
+            mensagem = "Ocorreu um erro ao Atualizar a Lista."
+            dlg = DialogModal(msg=mensagem, parent=self)
+            dlg.errorModal(title='Ocorreu um erro!')
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+
     app.exec()

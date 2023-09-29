@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1079</width>
-    <height>785</height>
+    <height>795</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -177,8 +177,17 @@ QWidget&gt;QTextEdit{
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Menu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="menu">
              <property name="geometry">
@@ -186,11 +195,14 @@ QWidget&gt;QTextEdit{
                <x>0</x>
                <y>0</y>
                <width>182</width>
-               <height>519</height>
+               <height>529</height>
               </rect>
              </property>
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
              </property>
              <attribute name="label">
               <string>Menu</string>
@@ -275,34 +287,94 @@ QWidget&gt;QTextEdit{
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="Inform">
+            <widget class="QWidget" name="Informacoes">
              <property name="geometry">
               <rect>
                <x>0</x>
                <y>0</y>
                <width>182</width>
-               <height>519</height>
+               <height>529</height>
               </rect>
              </property>
              <attribute name="label">
               <string>Informações</string>
              </attribute>
              <layout class="QVBoxLayout" name="verticalLayout_7">
-              <item>
-               <widget class="QTextEdit" name="textEdit">
-                <property name="html">
-                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Usuario:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Admin&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:16pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Sessão:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Ativa Chrome&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Versão Copilot:&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;1.0.0.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+               <widget class="QFrame" name="container_infos">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
                 </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_20">
+                 <item>
+                  <widget class="QLabel" name="label_11">
+                   <property name="font">
+                    <font>
+                     <family>Roboto</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Usúario Logado:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="txt_user_login">
+                   <property name="font">
+                    <font>
+                     <family>Roboto</family>
+                     <pointsize>18</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>@usuario</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>64</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+                  <widget class="QLabel" name="label_12">
+                   <property name="font">
+                    <font>
+                     <family>Roboto</family>
+                     <pointsize>12</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Data do Login:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="txt_data_login">
+                   <property name="font">
+                    <font>
+                     <family>Roboto</family>
+                     <pointsize>16</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>dd/mm/AA</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>
@@ -400,6 +472,12 @@ QFrame&gt;QLabel{
           </item>
           <item>
            <widget class="QLabel" name="title">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
@@ -448,7 +526,7 @@ QFrame&gt;QLabel{
 </string>
             </property>
             <property name="currentIndex">
-             <number>3</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="pg_oportunidades">
              <property name="styleSheet">
@@ -470,28 +548,72 @@ QFrame&gt;QLabel{
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_10">
-                 <item alignment="Qt::AlignLeft">
-                  <widget class="QPushButton" name="btn_atualizar">
-                   <property name="cursor">
-                    <cursorShape>PointingHandCursor</cursorShape>
+                 <item>
+                  <widget class="QFrame" name="box_container_update_list">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
-                   <property name="mouseTracking">
-                    <bool>false</bool>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
                    </property>
-                   <property name="styleSheet">
-                    <string notr="true">color:#0B0F1B;
+                   <layout class="QHBoxLayout" name="horizontalLayout_5">
+                    <item>
+                     <widget class="QPushButton" name="btn_atualizar_clientes">
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="mouseTracking">
+                       <bool>false</bool>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">
+QPushButton{
+color:#0B0F1B;
 font-weight: 600;
 background-color: #EEEEEE;
 padding:5px;
-border-radius:3px;</string>
-                   </property>
-                   <property name="text">
-                    <string>Atualizar Lista</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="icons.qrc">
-                     <normaloff>:/icons/D:/Space Marketing/Shark Business/1x/refresh.png</normaloff>:/icons/D:/Space Marketing/Shark Business/1x/refresh.png</iconset>
-                   </property>
+border-radius:3px;
+}
+QPushButton:hover{
+color:white;
+background-color: #262c43;
+}</string>
+                      </property>
+                      <property name="text">
+                       <string>Atualizar Lista</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="icons.qrc">
+                        <normaloff>:/icons/D:/Space Marketing/Shark Business/1x/refresh.png</normaloff>:/icons/D:/Space Marketing/Shark Business/1x/refresh.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QFrame" name="frame_6">
+                      <property name="frameShape">
+                       <enum>QFrame::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_21">
+                       <item>
+                        <widget class="QProgressBar" name="update_list_clientes">
+                         <property name="value">
+                          <number>24</number>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                         </property>
+                         <property name="textVisible">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
@@ -653,62 +775,62 @@ selection-background-color: #282828;
                    </column>
                    <item row="0" column="0">
                     <property name="text">
-                     <string>JOão</string>
+                     <string>Necessário Login</string>
                     </property>
                    </item>
                    <item row="0" column="1">
                     <property name="text">
-                     <string>1</string>
+                     <string>Necessário Login</string>
                     </property>
                    </item>
                    <item row="0" column="2">
                     <property name="text">
-                     <string>LoremLoremLoremLoremLoremLoremLoremLoremLorem</string>
+                     <string>Necessário Login</string>
                     </property>
                    </item>
                    <item row="1" column="0">
                     <property name="text">
-                     <string>Clara</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="1" column="1">
                     <property name="text">
-                     <string>2</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="1" column="2">
                     <property name="text">
-                     <string>2</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="2" column="0">
                     <property name="text">
-                     <string>Paulo</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="2" column="1">
                     <property name="text">
-                     <string>3</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="2" column="2">
                     <property name="text">
-                     <string>3</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="3" column="0">
                     <property name="text">
-                     <string>4</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="3" column="1">
                     <property name="text">
-                     <string>4</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="3" column="2">
                     <property name="text">
-                     <string>4</string>
+                     <string/>
                     </property>
                    </item>
                   </widget>
@@ -740,6 +862,9 @@ QPushButton:hover{
                    </property>
                    <property name="text">
                     <string>Realizar Disparo</string>
+                   </property>
+                   <property name="autoRepeat">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -840,7 +965,7 @@ selection-background-color: #282828;
                    </column>
                    <column>
                     <property name="text">
-                     <string>Oportunidade</string>
+                     <string>Whatsapp</string>
                     </property>
                    </column>
                    <column>
@@ -882,16 +1007,23 @@ selection-background-color: #282828;
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_15">
                  <item alignment="Qt::AlignRight">
-                  <widget class="QPushButton" name="btn_atualizar_3">
+                  <widget class="QPushButton" name="btn_atualizar_cobrancas">
                    <property name="cursor">
                     <cursorShape>PointingHandCursor</cursorShape>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">color:#0B0F1B;
+                    <string notr="true">
+QPushButton{
+color:#0B0F1B;
 font-weight: 600;
 background-color: #EEEEEE;
 padding:5px;
-border-radius:3px;</string>
+border-radius:3px;
+}
+QPushButton:hover{
+color:white;
+background-color: #262c43;
+}</string>
                    </property>
                    <property name="text">
                     <string>Atualizar Lista</string>
@@ -915,6 +1047,19 @@ border-radius:3px;</string>
                    </property>
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Lista de Cobranças:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDialogButtonBox" name="buttonBox">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="standardButtons">
+                    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+                   </property>
+                   <property name="centerButtons">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -995,6 +1140,21 @@ selection-background-color: #282828;
                      <string>Selecionar Lista</string>
                     </property>
                    </column>
+                   <item row="0" column="0">
+                    <property name="text">
+                     <string>Necessário Login</string>
+                    </property>
+                   </item>
+                   <item row="0" column="1">
+                    <property name="text">
+                     <string>Necessário Login</string>
+                    </property>
+                   </item>
+                   <item row="0" column="2">
+                    <property name="text">
+                     <string>Necessário Login</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item>
@@ -1164,92 +1324,92 @@ selection-background-color: #282828;
                    </column>
                    <item row="0" column="0">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="0" column="1">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="0" column="2">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="1" column="0">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="1" column="1">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="1" column="2">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="2" column="0">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="2" column="1">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="2" column="2">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="3" column="0">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="3" column="1">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="3" column="2">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="4" column="0">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="4" column="1">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="4" column="2">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="5" column="0">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="5" column="1">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                    <item row="5" column="2">
                     <property name="text">
-                     <string>Lorem</string>
+                     <string/>
                     </property>
                    </item>
                   </widget>
@@ -1403,6 +1563,9 @@ color:#191E2E;
                   <height>500</height>
                  </size>
                 </property>
+                <property name="focusPolicy">
+                 <enum>Qt::ClickFocus</enum>
+                </property>
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
                 </property>
@@ -1421,7 +1584,7 @@ color:#191E2E;
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
-                     <height>350</height>
+                     <height>385</height>
                     </size>
                    </property>
                    <property name="styleSheet">
@@ -1583,6 +1746,44 @@ color: rgb(49, 53, 70);
                      </widget>
                     </item>
                     <item>
+                     <widget class="QProgressBar" name="loginProgress">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="mouseTracking">
+                       <bool>false</bool>
+                      </property>
+                      <property name="autoFillBackground">
+                       <bool>false</bool>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">color:white;
+background:white;</string>
+                      </property>
+                      <property name="value">
+                       <number>0</number>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="textVisible">
+                       <bool>false</bool>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="invertedAppearance">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QPushButton" name="btn_logar">
                       <property name="minimumSize">
                        <size>
@@ -1596,11 +1797,23 @@ color: rgb(49, 53, 70);
                         <height>50</height>
                        </size>
                       </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
+                      <property name="contextMenuPolicy">
+                       <enum>Qt::NoContextMenu</enum>
+                      </property>
                       <property name="styleSheet">
                        <string notr="true">height:40px;</string>
                       </property>
                       <property name="text">
                        <string>Realizar login com Shark Business®</string>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>

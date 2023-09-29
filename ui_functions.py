@@ -96,6 +96,14 @@ class AuthUser:
         return False
 
 
+def format_phone_url(phone):
+    new_phone = f'{phone}'.replace('(', '').replace(
+        ')', '').replace('-', '').replace(' ', '')
+    if '55' not in new_phone:
+        new_phone = f'55{new_phone}'
+    return new_phone
+
+
 if __name__ == '__main__':
     auth = AuthUser()
     tokens = auth.CR_token_login('admin', 'j040v1t0r')
