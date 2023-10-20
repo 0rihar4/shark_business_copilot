@@ -1,12 +1,14 @@
 
 import os
+from typing import Optional
 
 import joblib
 from dotenv import load_dotenv
-from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtWidgets import QTableWidget, QTableWidgetItem
+from PySide6.QtCore import QThread, Signal
+from PySide6.QtWidgets import QProgressBar, QTableWidget, QTableWidgetItem
 
 from conexao import GetInfosDB
+from ui_automatizador import Disparo
 from ui_functions import AuthUser
 
 load_dotenv()
@@ -54,7 +56,7 @@ class UpdateListThread(QThread):
             id_user = infos_login.get('id', None)
             get_infos = GetInfosDB()
             get_date_files = get_infos.get_files_csv(id_user)
-            num_linhas = len(get_date_files)  # type: ignore
+            num_linhas = len(get_date_files[1])  # type: ignore
             num_colunas = 3
 
             self.table_select_clientes.setRowCount(num_linhas)
@@ -63,15 +65,41 @@ class UpdateListThread(QThread):
             headers = ['Nome', 'WhatsApp', 'Texto']
             self.table_select_clientes.setHorizontalHeaderLabels(headers)
 
-            for row, (nome, info) in enumerate(
-                    get_date_files.items()):  # type:ignore
+            for row, infos in enumerate(get_date_files[1].items()):
+
                 self.table_select_clientes.setItem(
-                    row, 0, QTableWidgetItem(nome))
+                    row, 0, QTableWidgetItem(infos[0]))
                 self.table_select_clientes.setItem(
-                    row, 1, QTableWidgetItem(info['whatsapp']))
+                    row, 1, QTableWidgetItem(infos[1]['whatsapp']))
                 self.table_select_clientes.setItem(
-                    row, 2, QTableWidgetItem(info['texto']))
+                    row, 2, QTableWidgetItem(infos[1]['texto']))
             self.finished.emit(True)
 
         except FileNotFoundError:
             self.finished.emit(False)
+
+
+class DisparoThread(QThread):
+    finished = Signal(list)
+
+    def __init__(self, lista_disparo: list, progressBar: QProgressBar) -> None:
+        super().__init__()
+        self.progresso = progressBar
+        self.dados = lista_disparo
+
+    def run(self):
+        disaprador = Disparo()
+        finalizado = disaprador.disparar(
+            lista_disparo=self.dados,
+            callbakc=self.sendEmitProgress)
+        if finalizado['success']:
+            self.finished.emit(finalizado['mensagens'])
+        else:
+            self.finished.emit([])
+
+    def sendEmitProgress(self):
+        total = len(self.dados)
+        porcentagem = (1*100)/total
+        valor_atual = self.progresso.value()
+        novo_valor = valor_atual + porcentagem
+        self.progresso.setValue(int(novo_valor))

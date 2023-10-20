@@ -48,7 +48,7 @@ class Disparo:
         )
         return elemento
 
-    def disparar(self, lista_disparo: list):
+    def disparar(self, lista_disparo: list, callbakc=None):
 
         mensagens = []
         options = ('--disable-gpu', '--no-sandbox',)  # noqa F841
@@ -80,6 +80,7 @@ class Disparo:
                             'Status': 'Mensagem Entregue!',
                         })
                         sleep(5)
+
                     except Exception:
                         mensagens.append({
                             'Nome Cliente': infos["Nome"],
@@ -87,6 +88,8 @@ class Disparo:
                             'Status': 'Erro ao entreguar Mensagem!',
                         })
                         sleep(5)
+                    if callbakc:
+                        callbakc()
 
                 else:
                     button = self.select_element(
@@ -109,12 +112,14 @@ class Disparo:
             })
 
         browser.quit()
-        return mensagens
+        return {'mensagens': mensagens, 'success': True}
 
 
 if __name__ == '__main__':
-    dados = [{'Nome': 'Amorzinho', 'WhatsApp': '(37)9 9935-5076', 'Texto': 'Oi Amorzinho! Tá querendo viver aventuras épicas'}, {
-        'Nome': 'João Vitor', 'WhatsApp': '(37)9 9871-6405', 'Texto': 'E aí, João Vitor! \n\nLembra do produto incrível'}]
+    dados = [{'Nome': 'Amorzinho', 'WhatsApp': '(37)9 9935-5076',
+              'Texto': 'Oi Amorzinho! Tá querendo viver aventuras épicas'}, {
+        'Nome': 'João Vitor', 'WhatsApp': '(37)9 9871-6405',
+        'Texto': 'E aí, João Vitor! \n\nLembra do produto incrível'}]
     for infos in dados:
         print(infos['Texto'].replace('\n', ''))
         print(fc.format_phone_url(infos['WhatsApp']))

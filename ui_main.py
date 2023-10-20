@@ -339,6 +339,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.update_list_clientes = QProgressBar(self.frame_6)
         self.update_list_clientes.setObjectName(u"update_list_clientes")
+        self.update_list_clientes.setMinimumSize(QSize(0, 7))
         self.update_list_clientes.setValue(24)
         self.update_list_clientes.setAlignment(Qt.AlignCenter)
         self.update_list_clientes.setTextVisible(False)
@@ -435,7 +436,7 @@ class Ui_MainWindow(object):
         self.table_select_clientes.setGridStyle(Qt.SolidLine)
         self.table_select_clientes.setSortingEnabled(True)
         self.table_select_clientes.setRowCount(30)
-        self.table_select_clientes.horizontalHeader().setVisible(False)
+        self.table_select_clientes.horizontalHeader().setVisible(True)
         self.table_select_clientes.horizontalHeader().setCascadingSectionResizes(False)
         self.table_select_clientes.horizontalHeader().setMinimumSectionSize(63)
         self.table_select_clientes.horizontalHeader().setDefaultSectionSize(150)
@@ -462,6 +463,14 @@ class Ui_MainWindow(object):
         self.bt_disparo.setAutoRepeat(False)
 
         self.verticalLayout_10.addWidget(self.bt_disparo)
+
+        self.disparo_progress = QProgressBar(self.frame_lista_disparo)
+        self.disparo_progress.setObjectName(u"disparo_progress")
+        self.disparo_progress.setMaximumSize(QSize(16777215, 8))
+        self.disparo_progress.setValue(0)
+        self.disparo_progress.setTextVisible(False)
+
+        self.verticalLayout_10.addWidget(self.disparo_progress)
 
         self.horizontalLayout_3.addWidget(self.frame_lista_disparo)
 

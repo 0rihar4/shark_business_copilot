@@ -1,5 +1,6 @@
 import csv
 import os
+from datetime import datetime
 
 import paramiko
 import psycopg2
@@ -46,7 +47,6 @@ class ConnectionDB():
                 cursor = conn.cursor()
                 cursor.execute("SELECT version();")
                 version = cursor.fetchone()
-                print("Versão do PostgreSQL:", version[0])
                 cursor.execute(comando_sql)
                 try:
                     conn.commit()
@@ -86,13 +86,48 @@ class ConnectionDB():
                 else:
                     consulta_sql = f"SELECT {', '.join(colunas)} FROM {tabela}"
 
-                print(consulta_sql)
-
-                print(consulta_sql)
                 cursor.execute(consulta_sql)
                 resultados = cursor.fetchall()
-                print(resultados)
+
                 return resultados
+            except psycopg2.OperationalError as e:
+                return str(e)
+            finally:
+                if cursor is not None:
+                    cursor.close()
+                if conn is not None:
+                    conn.close()
+
+    def UpdateGrupoDisparo(self, estado_grupo, id_grupo, user_id):
+        conn = None
+        cursor = None
+        with SSHTunnelForwarder(
+            (self.ssh_host, self.ssh_port),
+            ssh_username=self.ssh_user,
+            ssh_password=self.ssh_password,
+            remote_bind_address=(self.db_host, self.db_port),
+        ) as tunnel:
+            # Conectar ao banco de dados PostgreSQL através do túnel SSH
+            try:
+                conn = psycopg2.connect(
+                    database=self.db_name,
+                    user=self.db_user,
+                    password=self.db_password,
+                    host="127.0.0.1",
+                    port=tunnel.local_bind_port,  # type:ignore
+                )
+                cursor = conn.cursor()
+                # consulta_sql = f"SELECT {', '.join(colunas)} FROM {tabela}"
+                updade_grupo = f"""
+                UPDATE oportunidades_grupodeoportunidade
+                SET disparado = '{estado_grupo}',
+                data_disparo = '{datetime.now()}'
+                WHERE id = {id_grupo} AND
+                oportunidades_grupodeoportunidade.empresa_id = {user_id}
+                """  # noqa E501
+                cursor.execute(updade_grupo)
+                conn.commit()
+                return True
             except psycopg2.OperationalError as e:
                 return str(e)
             finally:
@@ -129,6 +164,8 @@ class ConnectionDB():
             print(e)
             return f"Erro ao ler o arquivo CSV: {str(e)}"
 
+# TODO No Aplicatiovo Web deve se criar um campo para marcar que o Arquivo foi criado, no caso um csv_criado no model  GrupoDeOportunidade
+
 
 class GetInfosDB():
     def get_files_csv(self, user_id):
@@ -145,13 +182,17 @@ class GetInfosDB():
                 file_name = linha[0].split('/')
                 file_name = file_name[1]
                 csv_file = conn.GetCsvFile(remote_file_path, file_name)
-                return csv_file
+                grupo_id = linha[1]
+                return [grupo_id, csv_file]
         else:
             print('Esse Cliente não gerou arquivos!')
             raise ValueError('Não foi gerado nenhum arquivo de disparo!')
 
+    # def grupo_send_check(self, user_id):
+    #     conn = ConnectionDB()
+
 
 if __name__ == '__main__':
     get_infos = GetInfosDB()
-    csv_file = get_infos.get_files_csv(user_id=2)
-    print(csv_file)
+    update_grupo = get_infos.get_files_csv(2)
+    print(update_grupo)

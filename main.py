@@ -7,17 +7,16 @@ from datetime import datetime
 import joblib
 from dotenv import load_dotenv
 from PySide6 import QtCore
-from PySide6.QtCore import QCoreApplication
+# from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                                QMainWindow, QMessageBox, QTableWidgetItem)
 
 from conexao import GetInfosDB
-from ui_automatizador import Disparo
 from ui_functions import AuthUser
 from ui_main import Ui_MainWindow
 from ui_modal import Ui_Dialog
-from ui_threads import LoginThread, UpdateListThread
+from ui_threads import DisparoThread, LoginThread, UpdateListThread
 
 load_dotenv()
 
@@ -29,26 +28,27 @@ class DialogModal(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.setWindowTitle('Shark Copilot Avisa:')
         self.msg_modal.setText(str(msg))
-        QBtn = QDialogButtonBox.Ok
+        QBtn = QDialogButtonBox.Ok  # type:ignore
         self.buttonBox = QDialogButtonBox(QBtn)
         self.btn_confirm.accepted.connect(self.accept)
 
     def errorModal(self, title):
         error = QMessageBox.warning(self, title, self.message)
-        if error == QDialogButtonBox.Ok:
+        if error == QDialogButtonBox.Ok:  # type:ignore
             self.close()
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self,) -> None:
         super(MainWindow, self).__init__()
+        self.grupo_id = None
         self._my_errors = defaultdict(list)  # type:ignore
         # if self.logado:
         #     self.lineUser.setText('Logado')
         #     self.linePassword.setText('Logado')
         self.setupUi(self)
         self.setWindowTitle("Shark Copilot - Sistema de Disparos")
-        appIcon = QIcon(u"")
+        appIcon = QIcon(u"ico_black.ico")
         self.loginProgress.hide()
         self.update_list_clientes.hide()
 
@@ -90,12 +90,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         mensagem = "Atenção! Nossa função de disparo realiza uma automação do whatsapp. Essa função pode ocasionar o bloqueamento do seu número!  \
         Utilize um numero de whatsapp secundario."  # noqa E501
         dlg = DialogModal(msg=mensagem, parent=self)
-        dados = self.getInfosTable()
+
         # dlg.msg_modal.setText('Testando')
         if dlg.exec_():
-            disaprador = Disparo()
             dlg.btn_confirm.clicked.connect(
-                disaprador.disparar(lista_disparo=dados)
+                self.start_disparo()
             )
 
     def getInfosTable(self):
@@ -123,24 +122,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             infos_login = joblib.load(os.getenv('LOGIN_CACHE'))
             id_user = infos_login.get('id', None)
             get_infos = GetInfosDB()
-            get_date_files = get_infos.get_files_csv(id_user)
-            num_linhas = len(get_date_files)  # type: ignore
-            num_colunas = 3
+            try:
+                infos_query = get_infos.get_files_csv(id_user)
+                get_date_files = infos_query[1]
+                # grupo_id = infos_query[0]
+                num_linhas = len(get_date_files)  # type: ignore
+                num_colunas = 3
 
-            self.table_select_clientes.setRowCount(num_linhas)
-            self.table_select_clientes.setColumnCount(num_colunas)
+                self.table_select_clientes.setRowCount(num_linhas)
+                self.table_select_clientes.setColumnCount(num_colunas)
 
-            headers = ['Nome', 'WhatsApp', 'Texto']
-            self.table_select_clientes.setHorizontalHeaderLabels(headers)
+                headers = ['Nome', 'WhatsApp', 'Texto']
+                self.table_select_clientes.setHorizontalHeaderLabels(headers)
 
-            for row, (nome, info) in enumerate(
-                    get_date_files.items()):  # type:ignore
+                for row, (nome, info) in enumerate(
+                        get_date_files.items()):  # type:ignore
+                    self.table_select_clientes.setItem(
+                        row, 0, QTableWidgetItem(nome))
+                    self.table_select_clientes.setItem(
+                        row, 1, QTableWidgetItem(info['whatsapp']))
+                    self.table_select_clientes.setItem(
+                        row, 2, QTableWidgetItem(info['texto']))
+            except ValueError:
                 self.table_select_clientes.setItem(
-                    row, 0, QTableWidgetItem(nome))
+                    1, 0, QTableWidgetItem('Não Gerou Arquivos!'))
                 self.table_select_clientes.setItem(
-                    row, 1, QTableWidgetItem(info['whatsapp']))
+                    1, 1, QTableWidgetItem('Não Gerou Arquivos!'))
                 self.table_select_clientes.setItem(
-                    row, 2, QTableWidgetItem(info['texto']))
+                    1, 2, QTableWidgetItem('Não Gerou Arquivos!'))
 
         except FileNotFoundError:
             ...
@@ -270,6 +279,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.animation.start()
 
+    # THREADS
     def start_authentication(self):
         user = self.lineUser.text()
         password = self.linePassword.text()
@@ -338,6 +348,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             mensagem = "Ocorreu um erro ao Atualizar a Lista."
             dlg = DialogModal(msg=mensagem, parent=self)
             dlg.errorModal(title='Ocorreu um erro!')
+
+    def start_disparo(self):
+        dados = self.getInfosTable()
+        progressBar = self.disparo_progress
+        self.disparo_progress.setValue(0)
+        self.bt_disparo.setText('Iniciando Disparo!')
+        self.bt_disparo.setEnabled(False)
+
+        self.worker_thread = DisparoThread(
+            lista_disparo=dados, progressBar=progressBar
+        )
+        self.worker_thread.finished.connect(self.disparo_finished)
+        self.worker_thread.start()
+
+    def disparo_finished(self, success):
+        self.disparo_progress.hide()
+        self.bt_disparo.setText('Realizar Disparo!')
+        self.bt_disparo.setEnabled(True)
+        if success != []:
+            for row, info in enumerate(
+                    success):  # type:ignore
+                self.table_result_clientes.setItem(
+                    row, 0, QTableWidgetItem(info['Nome Cliente']))
+                self.table_result_clientes.setItem(
+                    row, 1, QTableWidgetItem(info['Whatsapp']))
+                self.table_result_clientes.setItem(
+                    row, 2, QTableWidgetItem(info['Status']))
+        else:
+            print('erro')
 
 
 if __name__ == '__main__':
