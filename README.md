@@ -8,8 +8,9 @@ Shark Copilot is currently developing programming to send automatic messages on 
 Developed in Python initially for installation on Windows in an .exe file
 
 Use Command:
+```bash
 pyinstaller --name='Shark Business'  --onefile --noconsole  --windowed  --add-data="icon.ico;."  --icon='icon.ico' --log-level=WARN  main.py
-
+```
 
 ## Contributing
 
