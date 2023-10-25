@@ -18,6 +18,7 @@ from ui_main import Ui_MainWindow
 from ui_modal import Ui_Dialog
 from ui_threads import DisparoThread, LoginThread, UpdateListThread
 
+basedir = os.path.dirname(__file__)
 load_dotenv()
 
 
@@ -48,12 +49,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #     self.linePassword.setText('Logado')
         self.setupUi(self)
         self.setWindowTitle("Shark Copilot - Sistema de Disparos")
-        appIcon = QIcon(u"ico_black.ico")
+
         self.loginProgress.hide()
         self.update_list_clientes.hide()
 
         self.worker_thread = None
-        self.setWindowIcon(appIcon)
+        # appIcon = QIcon("icon_bg.png")
+        # self.setWindowIcon(appIcon)
         ###############################################################
         # Check if the user is logged in
         self.isLogged()
@@ -168,7 +170,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             self.loginConfirmOpen(username=user)
             self.configTableListClientes()
-        except FileNotFoundError:
+        except (FileNotFoundError, TypeError):
             return False
 
     def LeftMenu(self):
@@ -381,7 +383,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(os.path.join(basedir, 'icon.ico')))
     window = MainWindow()
     window.show()
-
     app.exec()

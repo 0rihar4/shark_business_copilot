@@ -115,14 +115,14 @@ class Disparo:
         return {'mensagens': mensagens, 'success': True}
 
 
-if __name__ == '__main__':
-    dados = [{'Nome': 'Amorzinho', 'WhatsApp': '(37)9 9935-5076',
-              'Texto': 'Oi Amorzinho! Tá querendo viver aventuras épicas'}, {
-        'Nome': 'João Vitor', 'WhatsApp': '(37)9 9871-6405',
-        'Texto': 'E aí, João Vitor! \n\nLembra do produto incrível'}]
-    for infos in dados:
-        print(infos['Texto'].replace('\n', ''))
-        print(fc.format_phone_url(infos['WhatsApp']))
+# if __name__ == '__main__':
+#     dados = [{'Nome': 'Amorzinho', 'WhatsApp': '(37)9 9935-5076',
+#               'Texto': 'Oi Amorzinho! Tá querendo viver aventuras épicas'}, {
+#         'Nome': 'João Vitor', 'WhatsApp': '(37)9 9871-6405',
+#         'Texto': 'E aí, João Vitor! \n\nLembra do produto incrível'}]
+#     for infos in dados:
+#         print(infos['Texto'].replace('\n', ''))
+#         print(fc.format_phone_url(infos['WhatsApp']))
     # disparador = Disparo()
     # disparar = disparador.disparar(dados)
     # print(disparar)

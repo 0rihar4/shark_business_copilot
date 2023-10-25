@@ -104,21 +104,21 @@ def format_phone_url(phone):
     return new_phone
 
 
-if __name__ == '__main__':
-    auth = AuthUser()
-    tokens = auth.CR_token_login('admin', 'j040v1t0r')
-    # access_token = tokens.get('access', None)
-    # print(access_token)
-    try:
-        infos_user = auth.get_infos_user()
-    except Exception:
-        file_cache = os.getenv('FILE_CACHE')
-        auths_tokens = joblib.load(file_cache)
-        refresh = auths_tokens['refresh']
-        refresh_token = auth.refresh_token_user(refresh)
-        print(refresh_token)
-        if refresh_token:
-            infos_user = auth.get_infos_user()
-        else:
-            infos_user = None
-    print(infos_user)
+# if __name__ == '__main__':
+#     auth = AuthUser()
+#     tokens = auth.CR_token_login('admin', 'j040v1t0r')
+#     # access_token = tokens.get('access', None)
+#     # print(access_token)
+#     try:
+#         infos_user = auth.get_infos_user()
+#     except Exception:
+#         file_cache = os.getenv('FILE_CACHE')
+#         auths_tokens = joblib.load(file_cache)
+#         refresh = auths_tokens['refresh']
+#         refresh_token = auth.refresh_token_user(refresh)
+#         print(refresh_token)
+#         if refresh_token:
+#             infos_user = auth.get_infos_user()
+#         else:
+#             infos_user = None
+#     print(infos_user)

@@ -192,7 +192,7 @@ class GetInfosDB():
     #     conn = ConnectionDB()
 
 
-if __name__ == '__main__':
-    get_infos = GetInfosDB()
-    update_grupo = get_infos.get_files_csv(2)
-    print(update_grupo)
+# if __name__ == '__main__':
+#     get_infos = GetInfosDB()
+#     update_grupo = get_infos.get_files_csv(2)
+#     print(update_grupo)
