@@ -1,15 +1,14 @@
 
 import os
-from typing import Optional
 
 import joblib
 from dotenv import load_dotenv
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QProgressBar, QTableWidget, QTableWidgetItem
 
-from conexao import GetInfosDB
+# from conexao import GetInfosDB
 from ui_automatizador import Disparo
-from ui_functions import AuthUser
+from ui_functions import AuthUser, GrupoOportunidade
 
 load_dotenv()
 
@@ -24,8 +23,8 @@ class LoginThread(QThread):
 
     def run(self):
         auth = AuthUser()
-        login = auth.CR_token_login(self.user, self.password)
 
+        login = auth.CR_token_login(self.user, self.password)
         if login:
             id_user = auth.get_infos_user()
             id_user = id_user[0].get('id', None)
@@ -52,11 +51,12 @@ class UpdateListThread(QThread):
             auth = AuthUser()
             file_cache = str(os.getenv('LOGIN_CACHE'))
             auth.check_time_file_cache(file_cache)
-            infos_login = joblib.load(os.getenv('LOGIN_CACHE'))
-            id_user = infos_login.get('id', None)
-            get_infos = GetInfosDB()
-            get_date_files = get_infos.get_files_csv(id_user)
-            num_linhas = len(get_date_files[1])  # type: ignore
+            grupoOp = GrupoOportunidade()
+            get_infos = grupoOp.get_tigger_file()
+            get_infos = get_infos[0]
+            get_date_files = get_infos['participantes']
+            print(get_date_files)
+            num_linhas = len(get_date_files)  # type: ignore
             num_colunas = 3
 
             self.table_select_clientes.setRowCount(num_linhas)
@@ -65,14 +65,14 @@ class UpdateListThread(QThread):
             headers = ['Nome', 'WhatsApp', 'Texto']
             self.table_select_clientes.setHorizontalHeaderLabels(headers)
 
-            for row, infos in enumerate(get_date_files[1].items()):
-
+            for row, (nome, info) in enumerate(
+                    get_date_files.items()):  # type:ignore
                 self.table_select_clientes.setItem(
-                    row, 0, QTableWidgetItem(infos[0]))
+                    row, 0, QTableWidgetItem(info['nome_contato']))
                 self.table_select_clientes.setItem(
-                    row, 1, QTableWidgetItem(infos[1]['whatsapp']))
+                    row, 1, QTableWidgetItem(info['whatsapp']))
                 self.table_select_clientes.setItem(
-                    row, 2, QTableWidgetItem(infos[1]['texto']))
+                    row, 2, QTableWidgetItem(info['texto-mensagem']))
             self.finished.emit(True)
 
         except FileNotFoundError:

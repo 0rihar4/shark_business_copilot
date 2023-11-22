@@ -12,8 +12,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                                QMainWindow, QMessageBox, QTableWidgetItem)
 
-from conexao import GetInfosDB
-from ui_functions import AuthUser
+from ui_functions import AuthUser, GrupoOportunidade, verifica_acesso_internet
 from ui_main import Ui_MainWindow
 from ui_modal import Ui_Dialog
 from ui_threads import DisparoThread, LoginThread, UpdateListThread
@@ -59,6 +58,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ###############################################################
         # Check if the user is logged in
         self.isLogged()
+
         ###############################################################
         # TOGGLE BUTTON
         self.btn_toggle.clicked.connect(self.LeftMenu)
@@ -78,7 +78,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.btn_logar.clicked.connect(self.start_authentication)
         ###################
-
         # Start Disparo
         self.bt_disparo.clicked.connect(
             self.DialogConfirmDisparo
@@ -94,7 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dlg = DialogModal(msg=mensagem, parent=self)
 
         # dlg.msg_modal.setText('Testando')
-        if dlg.exec_():
+        if dlg.exec():
             dlg.btn_confirm.clicked.connect(
                 self.start_disparo()
             )
@@ -121,12 +120,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             auth = AuthUser()
             file_cache = str(os.getenv('LOGIN_CACHE'))
             auth.check_time_file_cache(file_cache)
-            infos_login = joblib.load(os.getenv('LOGIN_CACHE'))
-            id_user = infos_login.get('id', None)
-            get_infos = GetInfosDB()
+
+            grupoOp = GrupoOportunidade()
+            get_infos = grupoOp.get_tigger_file()
+            get_infos = get_infos[0]
             try:
-                infos_query = get_infos.get_files_csv(id_user)
-                get_date_files = infos_query[1]
+
+                get_date_files = get_infos['participantes']
                 # grupo_id = infos_query[0]
                 num_linhas = len(get_date_files)  # type: ignore
                 num_colunas = 3
@@ -140,11 +140,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 for row, (nome, info) in enumerate(
                         get_date_files.items()):  # type:ignore
                     self.table_select_clientes.setItem(
-                        row, 0, QTableWidgetItem(nome))
+                        row, 0, QTableWidgetItem(info['nome_contato']))
                     self.table_select_clientes.setItem(
                         row, 1, QTableWidgetItem(info['whatsapp']))
                     self.table_select_clientes.setItem(
-                        row, 2, QTableWidgetItem(info['texto']))
+                        row, 2, QTableWidgetItem(info['texto-mensagem']))
             except ValueError:
                 self.table_select_clientes.setItem(
                     1, 0, QTableWidgetItem('Não Gerou Arquivos!'))
@@ -170,6 +170,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             )
             self.loginConfirmOpen(username=user)
             self.configTableListClientes()
+
         except (FileNotFoundError, TypeError):
             return False
 
@@ -289,22 +290,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if user == '' or password == '':
             self.msg_error_login.setText('Digite o usuário e a senha.')
             return
+        isconected = verifica_acesso_internet()
+        if isconected is False:
+            mensagem = "Você precisa está conectado na internet!"
+            dlg = DialogModal(msg=mensagem)
+            dlg.errorModal(title='Ocorreu um erro!')
+        else:
+            self.loginProgress.show()
+            self.loginProgress.setValue(0)
+            self.btn_logar.setEnabled(False)
 
-        self.loginProgress.show()
-        self.loginProgress.setValue(0)
-        self.btn_logar.setEnabled(False)
-
-        self.worker_thread = LoginThread(user, password)
-        self.worker_thread.finished.connect(self.authentication_finished)
-        self.worker_thread.start()
-        cont = 0
-        while self.worker_thread.isFinished() is not True:
-            self.loginProgress.setValue(cont)
-            if cont < 100:
-                cont += 1
-            else:
-                cont = 0
-            time.sleep(0.001)
+            self.worker_thread = LoginThread(user, password)
+            self.worker_thread.finished.connect(self.authentication_finished)
+            self.worker_thread.start()
+            cont = 0
+            while self.worker_thread.isFinished() is not True:
+                self.loginProgress.setValue(cont)
+                if cont < 100:
+                    cont += 1
+                else:
+                    cont = 0
+                time.sleep(0.01)
 
     def authentication_finished(self, success):
         self.loginProgress.hide()
@@ -384,6 +390,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(os.path.join(basedir, 'icon.ico')))
+
     window = MainWindow()
     window.show()
     app.exec()
